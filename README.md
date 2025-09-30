@@ -1,15 +1,150 @@
-A Python script that automatically checks a Gmail account for new, unread emails matching a specific subject filter and forwards a summary of them to a Telegram chat.This is ideal for receiving real-time notifications for important emails, such as alerts, confirmations, or messages from a specific service.FeaturesGmail Integration: Securely authenticates with your Gmail account using the official Google API.Subject Filtering: Monitors only for emails that contain a specific keyword in their subject line.Real-time Forwarding: Runs in a continuous loop to check for new emails at a configurable interval.Telegram Notifications: Sends neatly formatted messages to a specified Telegram chat, including the sender, subject, date, and a preview of the email body.Prevents Duplicates: Automatically marks emails as 'read' after forwarding to ensure they are not sent again.Robust Logging: Keeps a log of its activities and any errors for easy troubleshooting.PrerequisitesBefore you begin, ensure you have the following:Python 3.6+ installed on your system.A Google Account (e.g., Gmail).A Telegram Account.Setup InstructionsFollow these steps to configure and run the forwarder.1. Clone the Repository & Install DependenciesFirst, get the code and install the required Python libraries.# Clone this repository (if applicable)
-# git clone [https://your-repo-url.git](https://your-repo-url.git)
-# cd your-repo-directory
+Gmail to Telegram Forwarder
+A Python script that periodically checks a Gmail account for new emails matching a specific subject filter and forwards them as notifications to a Telegram chat.
 
-# Install dependencies
+This is useful for getting instant alerts for important emails, such as account confirmations, monitoring alerts, or any other automated messages. The script is designed to be run as a persistent background service on a Linux server.
+
+Features
+Gmail Integration: Uses the official Gmail API to securely access your inbox.
+
+Subject Filtering: Only forwards emails that contain a specific keyword in the subject line.
+
+Telegram Notifications: Sends well-formatted messages to a specified Telegram chat or channel.
+
+Secure Authentication: Uses Google's OAuth 2.0 flow, so it never needs to store your password.
+
+State Management: Marks emails as "read" after forwarding to avoid duplicate notifications.
+
+Robust Logging: Logs all activities, successes, and errors to both a log file and the console.
+
+Requirements
+Python 3.6+
+
+A Linux server/machine to run the service.
+
+Google API Client Library for Python
+
+Google Auth Library for Python
+
+Requests
+
+Setup and Configuration
+Follow these steps to set up and configure the script.
+
+Step 1: Get the Code and Install Dependencies
+First, get the code onto your machine and install the required Python packages.
+```
+# Clone your repository (if you have one)
+# git clone <your-repo-url>
+# cd <your-repo-directory>
+
+# Install the required packages
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib requests
-2. Configure Google Cloud & Gmail APIYou need to authorize the script to read your emails.Go to the Google Cloud Console and create a new project.Enable the Gmail API for your project. You can find it in the "APIs & Services" > "Library" section.Go to "APIs & Services" > "Credentials".Click Create Credentials -> OAuth client ID.Select Desktop app as the application type.Click Create. A pop-up will appear with your Client ID and Client Secret.Click the Download JSON button on the right side of your newly created credential.Rename the downloaded file to credentials.json and place it in the same directory as the Python script.3. Set Up Your Telegram BotYou need a bot to send messages.Open Telegram and search for the @BotFather user.Start a chat and send the /newbot command.Follow the prompts to name your bot and choose a username.BotFather will give you a Bot Token. Copy this token.Find your Chat ID:Search for the bot @userinfobot in Telegram and start a chat. It will immediately give you your user ID. This is your Chat ID for personal notifications.If you want to send to a group, add the bot to the group first.4. Configure the ScriptOpen the Python script (your_script_name.py) and edit the configuration section with the credentials you just obtained.# Configuration
-SCOPES = ['[https://www.googleapis.com/auth/gmail.readonly](https://www.googleapis.com/auth/gmail.readonly)']
-TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE'  # <-- PASTE YOUR TELEGRAM BOT TOKEN
-TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID_HERE'      # <-- PASTE YOUR CHAT ID
-CHECK_INTERVAL = 60                         # Check every 60 seconds
-SUBJECT_FILTER = 'Disney'                   # <-- CHANGE TO THE KEYWORD YOU WANT TO FILTER BY
-Running the ScriptFirst-Time ExecutionThe first time you run the script, you will need to authorize it with your Google account.python3 your_script_name.py
-A new tab or window will open in your web browser.Log in to the Google account you want to monitor.Grant the script permission to view your emails.After authorization, a token.json file will be created in the same directory. This file stores your credentials so you won't have to log in again.Normal OperationAfter the first run, the script will start immediately and run in a loop, checking for emails every 60 seconds (or whatever CHECK_INTERVAL is set to). It will also send a startup message to your Telegram chat.To run it continuously in the background, you can use a tool like nohup:nohup python3 your_script_name.py &
-LoggingThe script logs its status and any errors to the console and to a file located at /var/log/gmail_telegram_forwarder.log. If you encounter issues, check this file for details.
+```
+Step 2: Configure Google API (Gmail)
+You need to enable the Gmail API and get credentials to allow the script to access your account.
+
+Go to the Google Cloud Console: https://console.cloud.google.com/
+
+Create a new project or select an existing one.
+
+Enable the Gmail API: In the navigation menu, go to APIs & Services > Library, search for "Gmail API", and click Enable.
+
+Create Credentials:
+
+Go to APIs & Services > Credentials.
+
+Click Create Credentials and select OAuth client ID.
+
+If prompted, configure the consent screen first. Select External and provide a name for the app.
+
+For the Application type, select Desktop app.
+
+Click Create.
+
+Download Credentials: A popup will appear. Click DOWNLOAD JSON. Rename the downloaded file to credentials.json and place it in the same directory as your Python script.
+
+Step 3: Configure Telegram Bot
+Create a Bot: Open Telegram and chat with the BotFather. Send the /newbot command and follow the instructions. BotFather will give you a token.
+
+Get Your Chat ID: Send a message to your new bot. Then, open your browser and go to the following URL, replacing <YOUR_BOT_TOKEN> with the token you received:
+https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
+Look for the "chat": {"id": ...} field in the JSON response. This is your Chat ID.
+
+Step 4: Configure the Script
+Open your Python script and edit the configuration section at the top with the credentials you just obtained.
+```
+# Configuration
+...
+TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE'
+TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID_HERE'
+CHECK_INTERVAL = 60  # Check every 60 seconds
+SUBJECT_FILTER = 'Disney' # Change this to the keyword you want to filter by
+```
+Usage and Deployment
+First-Time Authentication
+Before you can run the script as a service, you must run it once manually to authorize its access to your Gmail account.
+
+Run the script from your terminal:
+```
+python3 gmail-telegram-forwarder.py
+```
+The script will print a URL. Copy this URL and paste it into your web browser.
+
+Choose your Google account and grant the requested permissions.
+
+After authorization is complete, a token.json file will be created in the project directory. This file stores your authorization token.
+
+Now you can stop the script with Ctrl+C. You are ready to run it as a service.
+
+Deploying as a Systemd Service (Recommended)
+Running the script as a systemd service ensures it runs automatically in the background and restarts on failure or reboot.
+
+Create a service file:
+```
+sudo nano /etc/systemd/system/gmail-forwarder.service
+```
+This file should be created in /etc/systemd/system/, which is the standard location for custom service definitions by a system administrator.
+
+Paste the following configuration. Be sure to update the User and the path in ExecStart to match your system. To find your username, run whoami. To find the full path to your script, navigate to its directory and run pwd.
+```
+[Unit]
+Description=Gmail to Telegram Forwarder Service
+After=network.target
+
+[Service]
+User=your_linux_username
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python3 /path/to/your/script.py
+WorkingDirectory=/path/to/your/script_directory/
+
+[Install]
+WantedBy=multi-user.target
+```
+Enable and start the service:
+```
+# Reload the systemd manager configuration
+sudo systemctl daemon-reload
+
+# Enable the service to start on boot
+sudo systemctl enable gmail-forwarder.service
+
+# Start the service immediately
+sudo systemctl start gmail-forwarder.service
+```
+Check the service status:
+```
+sudo systemctl status gmail-forwarder.service
+```
+Logging and Permissions
+The script logs its activity to /var/log/gmail_telegram_forwarder.log. The systemd service may not have permission to write to this file by default.
+
+To fix this, create the log file and give your user ownership of it:
+```
+# Create the log file
+sudo touch /var/log/gmail_telegram_forwarder.log
+
+# Change its ownership to your user
+# Replace 'your_username' with the result of the `whoami` command
+sudo chown your_username:your_username /var/log/gmail_telegram_forwarder.log
+```
